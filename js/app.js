@@ -476,33 +476,82 @@ function renderQuizQuestion() {
     `;
   }).join('');
 
-  // Caja de retroalimentación inmediata
+  // Caja de retroalimentación inmediata didáctica y contrastiva
   let feedbackHtml = '';
   if (QuizState.isAnswered) {
     const isCorrect = (QuizState.selectedOpt === q.correctAnswer);
     const isLast = (QuizState.currentIndex + 1 === total);
 
-    feedbackHtml = `
-      <div class="mt-6 p-4 md:p-5 rounded-2xl border ${isCorrect ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950' : 'bg-amber-50/90 border-amber-300 text-amber-950'} transition-all shadow-sm space-y-3">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-2xl ${isCorrect ? 'text-emerald-600' : 'text-amber-600'}">
-            ${isCorrect ? 'task_alt' : 'info'}
-          </span>
-          <h4 class="font-display font-bold text-sm md:text-base">
-            ${isCorrect ? '¡Respuesta Correcta!' : 'Retroalimentación Pedagógica:'}
-          </h4>
+    if (isCorrect) {
+      feedbackHtml = `
+        <div class="mt-6 p-4 md:p-5 rounded-2xl border bg-emerald-50 border-emerald-300 text-emerald-950 transition-all shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-2xl text-emerald-600">check_circle</span>
+            <h4 class="font-display font-bold text-sm md:text-base text-emerald-900">
+              ¡Excelente deducción! Respuesta Correcta
+            </h4>
+          </div>
+          <p class="text-xs md:text-sm leading-relaxed text-slate-800">
+            ${q.correctExplanation || q.explanation}
+          </p>
+          <div class="pt-2 flex justify-end">
+            <button onclick="handleNextQuizQuestion()" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display text-xs md:text-sm font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-transform active:scale-95">
+              <span>${isLast ? 'Ver Resultados Finales' : 'Siguiente Pregunta'}</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
         </div>
-        <p class="text-xs md:text-sm leading-relaxed ${isCorrect ? 'text-emerald-900' : 'text-amber-900'}">
-          ${q.explanation}
-        </p>
-        <div class="pt-2 flex justify-end">
-          <button onclick="handleNextQuizQuestion()" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display text-xs md:text-sm font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-transform active:scale-95">
-            <span>${isLast ? 'Ver Resultados Finales' : 'Siguiente Pregunta'}</span>
-            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-          </button>
+      `;
+    } else {
+      const chosenText = q.options[QuizState.selectedOpt];
+      const correctText = q.options[q.correctAnswer];
+      const chosenFeedback = (q.optionFeedback && q.optionFeedback[QuizState.selectedOpt])
+        ? q.optionFeedback[QuizState.selectedOpt]
+        : "Esta estructura no se corresponde con los síntomas o funciones de la pregunta.";
+      const correctWhy = q.correctExplanation || q.explanation;
+
+      feedbackHtml = `
+        <div class="mt-6 p-4 md:p-5 rounded-2xl border bg-rose-50/90 border-rose-300 text-rose-950 transition-all shadow-sm space-y-4">
+          <div class="flex items-center gap-2 border-b border-rose-200 pb-2.5">
+            <span class="material-symbols-outlined text-2xl text-rose-600">cancel</span>
+            <h4 class="font-display font-bold text-sm md:text-base text-rose-900">
+              Respuesta Incorrecta — Análisis Anatómico Comparativo
+            </h4>
+          </div>
+
+          <div class="space-y-3 text-xs md:text-sm leading-relaxed">
+            <!-- Por qué NO es tu opción elegida -->
+            <div class="p-3.5 rounded-xl bg-white border border-rose-200/90 space-y-1 shadow-2xs">
+              <div class="flex items-center gap-1.5 font-bold text-rose-800">
+                <span class="material-symbols-outlined text-[17px] text-rose-600">close</span>
+                <span>Esta no es la correcta (${chosenText}):</span>
+              </div>
+              <p class="text-slate-700 pl-5 leading-relaxed">
+                ${chosenFeedback}
+              </p>
+            </div>
+
+            <!-- Por qué SÍ es la opción correcta -->
+            <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300/90 space-y-1 shadow-2xs">
+              <div class="flex items-center gap-1.5 font-bold text-emerald-800">
+                <span class="material-symbols-outlined text-[17px] text-emerald-600">check_circle</span>
+                <span>La opción correcta es ${correctText}:</span>
+              </div>
+              <p class="text-slate-700 pl-5 leading-relaxed">
+                ${correctWhy}
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button onclick="handleNextQuizQuestion()" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display text-xs md:text-sm font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-transform active:scale-95">
+              <span>${isLast ? 'Ver Resultados Finales' : 'Siguiente Pregunta'}</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
   }
 
   container.innerHTML = `

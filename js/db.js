@@ -314,7 +314,13 @@ const SEED_DATA = {
         "Cerebelo (Lóbulo posterior)"
       ],
       correctAnswer: 1,
-      explanation: "¡Correcto! El Área de Broca se localiza en la porción opercular y triangular del giro frontal inferior (lóbulo frontal izquierdo en el 95% de las personas) y programa los patrones motores necesarios para hablar.",
+      optionFeedback: [
+        "El Lóbulo Parietal se encarga del procesamiento somatosensorial (tacto, dolor) y la orientación en el espacio, no de la programación motora del habla.",
+        "El Lóbulo Frontal alberga el Área de Broca (giro frontal inferior, BA 44/45), centro que programa y coordina los movimientos musculares necesarios para articular las palabras.",
+        "El Lóbulo Temporal se encarga de la comprensión auditiva del lenguaje (Área de Wernicke) y de la memoria, pero no de la emisión y articulación motora de las palabras.",
+        "El Cerebelo calibra la precisión y el equilibrio motriz general, pero no contiene los centros corticales para organizar el habla humana."
+      ],
+      correctExplanation: "El Área de Broca reside en el Lóbulo Frontal (giro frontal inferior del hemisferio dominante) y es la estructura especializada en secuenciar y activar los patrones motores para que podamos hablar con fluidez.",
       difficulty: "Básico"
     },
     {
@@ -328,7 +334,13 @@ const SEED_DATA = {
         "Tronco Encefálico"
       ],
       correctAnswer: 2,
-      explanation: "¡Exacto! El hipocampo se sitúa en la cara medial del lóbulo temporal y es el centro indispensable para transformar la memoria a corto plazo en memoria a largo plazo.",
+      optionFeedback: [
+        "El Lóbulo Occipital está dedicado exclusivamente al procesamiento de estímulos visuales (formas, colores, movimiento), no a la formación de recuerdos.",
+        "El Lóbulo Frontal gestiona la memoria de trabajo inmediata y la planificación ejecutiva, pero no la consolidación de nuevos recuerdos a largo plazo.",
+        "En la cara medial del Lóbulo Temporal se localiza la formación hipocampal y la corteza entorrinal, indispensables para transferir recuerdos recientes a la memoria a largo plazo.",
+        "El Tronco Encefálico regula las funciones autónomas vitales (respiración, pulso cardíaco) y el nivel de vigilia, pero no participa en la consolidación mnésica."
+      ],
+      correctExplanation: "El hipocampo se encuentra en el Lóbulo Temporal medial. Es la 'puerta de entrada' que consolida y fija los recuerdos nuevos; sin él, el paciente queda atrapado en el presente (amnesia anterógrada).",
       difficulty: "Básico"
     },
     {
@@ -342,7 +354,13 @@ const SEED_DATA = {
         "Ataxia cerebelosa con marcha inestable"
       ],
       correctAnswer: 0,
-      explanation: "¡Muy bien! El lóbulo parietal derecho es dominante para orientar la atención espacial. Su daño produce heminegligencia unilateral, donde el paciente no percibe estímulos del hemiespacio izquierdo.",
+      optionFeedback: [
+        "La corteza parietal derecha orienta y distribuye la atención en el espacio tridimensional. Su lesión desconecta la atención del lado contralateral, provocando que el paciente ignore todo el hemiespacio izquierdo.",
+        "La ceguera total se originaría por un daño en ambos ojos, en los nervios ópticos o en la corteza visual occipital primaria, no en la corteza parietal.",
+        "Las afasias corresponden a lesiones en las áreas del lenguaje (frontal para Broca o temporal para Wernicke), no a la corteza parietal posterior derecha.",
+        "La marcha atáxica e inestable es una manifestación característica de disfunción en el cerebelo, no de una alteración parietal."
+      ],
+      correctExplanation: "El Lóbulo Parietal derecho es el encargado de construir el mapa atencional y el esquema corporal. Su daño produce heminegligencia visuoespacial, donde la mitad izquierda del mundo deja de existir en la conciencia del paciente.",
       difficulty: "Intermedio"
     },
     {
@@ -356,7 +374,13 @@ const SEED_DATA = {
         "Lóbulo Parietal"
       ],
       correctAnswer: 2,
-      explanation: "¡Correcto! El cerebelo coordina, calcula distancias y modula la suavidad de los movimientos voluntarios. Su lesión genera el clásico síndrome atáxico sin producir parálisis motora directa.",
+      optionFeedback: [
+        "Una lesión del Tronco Encefálico provocaría alteraciones en pares craneales (visión doble, dificultad para tragar) o coma, no un síndrome de descoordinación motora pura con dismetría.",
+        "El Lóbulo Occipital procesa la visión; un daño allí generaría pérdida de campo visual o agnosias, pero no fallas en la coordinación y equilibrio motriz.",
+        "El Cerebelo es el órgano de calibración, métrica y sincronización de los movimientos corporales voluntarios. Su daño provoca marcha atáxica y dismetría dedo-nariz.",
+        "El Lóbulo Parietal procesa sensaciones táctiles y orientación espacial, pero no calibra la suavidad ni la amortiguación del movimiento fino."
+      ],
+      correctExplanation: "El Cerebelo funciona como el estabilizador y corrector de trayectoria de los movimientos en tiempo real. Cuando falla, no hay parálisis, pero los movimientos se vuelven torpes, fragmentados y tambaleantes (ataxia y dismetría).",
       difficulty: "Intermedio"
     },
     {
@@ -370,7 +394,13 @@ const SEED_DATA = {
         "Apraxia ideomotora frontal"
       ],
       correctAnswer: 1,
-      explanation: "¡Brillante! La corteza visual primaria (V1) en el lóbulo occipital es indispensable para la visión consciente. Si se lesiona bilateralmente, se pierde la visión a pesar de la salud ocular (ceguera cortical).",
+      optionFeedback: [
+        "La afasia global es una pérdida masiva de la comprensión y producción del lenguaje por daño frontotemporal extenso, no produce pérdida de la visión.",
+        "La cisura calcarina en el Lóbulo Occipital alberga la corteza visual primaria (V1). Si se destruye bilateralmente, los ojos siguen captando luz pero el cerebro es incapaz de generar la imagen consciente (ceguera cortical).",
+        "El Síndrome de Gerstmann se origina por lesión en el giro angular parietal (acalculia, agnosia digital), no cursa con ceguera.",
+        "La apraxia ideomotora es la incapacidad de ejecutar gestos voluntarios por orden (como despedirse o peinarse), no una afectación del sistema visual."
+      ],
+      correctExplanation: "Los ojos capturan la luz del entorno, pero la visión consciente ocurre en la corteza estriada (V1) del Lóbulo Occipital. Si se daña V1 de ambos lados, el paciente experimenta ceguera cortical a pesar de tener ojos intactos.",
       difficulty: "Intermedio"
     },
     {
@@ -384,7 +414,13 @@ const SEED_DATA = {
         "Fascículo Arqueado"
       ],
       correctAnswer: 0,
-      explanation: "¡Correcto! El SARA, situado en la formación reticular del tronco encefálico, envía proyecciones continuas a la corteza para sostener la vigilia. Su lesión puede provocar estado de estupor o coma.",
+      optionFeedback: [
+        "El SARA está formado por núcleos reticulares del Tronco Encefálico que proyectan señales excitatorias a la corteza cerebral para mantener el estado de vigilia, alerta y atención consciente.",
+        "El Homúnculo de Penfield es un mapa somatotópico motor y sensitivo ubicado en las cortezas frontal y parietal, no un sistema de alerta.",
+        "El Cuerpo Calloso es el haz de fibras comisurales que comunica el hemisferio izquierdo con el derecho, no regula los ciclos de vigilia y sueño.",
+        "El Fascículo Arqueado es la vía subcortical que conecta las áreas del lenguaje de Broca y Wernicke, sin relación con el estado de alerta general."
+      ],
+      correctExplanation: "El SARA (Sistema Activador Reticular Ascendente) se sitúa en el Tronco Encefálico y actúa como el 'interruptor' que enciende la corteza cerebral. Su alteración puede inducir desde somnolencia profunda hasta coma irreversible.",
       difficulty: "Avanzado"
     }
   ],
@@ -498,7 +534,8 @@ class NeuroDatabase {
 
   init() {
     try {
-      if (!localStorage.getItem(this.STORAGE_KEY)) {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (!stored || !JSON.parse(stored).questions[0].optionFeedback) {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(SEED_DATA));
       }
       if (!localStorage.getItem(this.PROGRESS_KEY)) {
