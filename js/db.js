@@ -440,7 +440,14 @@ const SEED_DATA = {
       ],
       correctRegionId: "frontal",
       syndromeName: "Afasia Motora de Broca",
-      explanation: "El cuadro corresponde a una Afasia de Broca, provocada por una lesión isquémica en el giro frontal inferior del Lóbulo Frontal izquierdo. La corteza prefrontal motora organiza los patrones fonológicos de salida; al estar dañada, el paciente comprende el significado (temporal intacto) pero no puede coordinar el aparato motor para emitir oraciones fluidas."
+      explanation: "El cuadro corresponde a una Afasia de Broca, provocada por una lesión isquémica en el giro frontal inferior del Lóbulo Frontal izquierdo. La corteza prefrontal motora organiza los patrones fonológicos de salida; al estar dañada, el paciente comprende el significado (temporal intacto) pero no puede coordinar el aparato motor para emitir oraciones fluidas.",
+      differentialFeedback: {
+        temporal: "El Lóbulo Temporal causaría alteraciones en la comprensión auditiva (afasia de Wernicke) con habla fluida e incoherente, pero Carlos comprende perfectamente y su problema radica en la articulación motora.",
+        parietal: "El Lóbulo Parietal causaría alteraciones visuoespaciales, apraxias o pérdida sensitiva táctil, no una reducción motora del habla con esfuerzo articulatorio.",
+        occipital: "El Lóbulo Occipital causaría fallas visuales (ceguera o agnosias), sin afectar la producción del lenguaje hablado.",
+        cerebelo: "El Cerebelo causaría disartria motora por falta de coordinación de los músculos orofaciales, pero sin el agramatismo ni la reducción de vocabulario típica de Broca.",
+        tronco: "Una lesión troncal provocaría anartria total por parálisis de pares craneales bulbares o compromiso de conciencia, no una afasia cortical selectiva."
+      }
     },
     {
       id: "caso-02",
@@ -456,7 +463,14 @@ const SEED_DATA = {
       ],
       correctRegionId: "temporal",
       syndromeName: "Amnesia Anterógrada / Daño Hipocampal",
-      explanation: "El síntoma clave es la incapacidad de consolidar memoria declarativa episódica a largo plazo, característica del daño bilateral en la cara medial del Lóbulo Temporal (complejo hipocampal). El hipocampo actúa como el 'puente' que transfiere la información temporal a la corteza asociativa."
+      explanation: "El síntoma clave es la incapacidad de consolidar memoria declarativa episódica a largo plazo, característica del daño bilateral en la cara medial del Lóbulo Temporal (complejo hipocampal). El hipocampo actúa como el 'puente' que transfiere la información temporal a la corteza asociativa.",
+      differentialFeedback: {
+        frontal: "El Lóbulo Frontal causaría fallas en memoria de trabajo inmediata (dígitos inversos) y funciones ejecutivas, pero la fijación permanente de nuevos recuerdos depende del hipocampo temporal.",
+        parietal: "El Lóbulo Parietal causaría desatención espacial o acalculia, pero no una amnesia anterógrada episódica pura.",
+        occipital: "El Lóbulo Occipital procesa la visión; no almacena ni consolida recuerdos autobiográficos.",
+        cerebelo: "El Cerebelo modula el aprendizaje motor procedimental (andar en bici), pero la memoria declarativa consciente se consolida en el lóbulo temporal.",
+        tronco: "El Tronco Encefálico regula el nivel de alerta; su daño causaría estupor o coma, no una pérdida selectiva de memoria con lucidez intacta."
+      }
     },
     {
       id: "caso-03",
@@ -472,7 +486,14 @@ const SEED_DATA = {
       ],
       correctRegionId: "parietal",
       syndromeName: "Heminegligencia Visuoespacial Unilateral",
-      explanation: "Este cuadro es el clásico síndrome de Heminegligencia provocado por daño en la corteza parietal posterior del Lóbulo Parietal derecho. El lóbulo parietal derecho construye la representación espacial del mundo; al destruirse, el hemisferio no dirige la atención al lado contralateral y la mitad izquierda del mundo deja de existir en la conciencia del paciente."
+      explanation: "Este cuadro es el clásico síndrome de Heminegligencia provocado por daño en la corteza parietal posterior del Lóbulo Parietal derecho. El lóbulo parietal derecho construye la representación espacial del mundo; al destruirse, el hemisferio no dirige la atención al lado contralateral y la mitad izquierda del mundo deja de existir en la conciencia del paciente.",
+      differentialFeedback: {
+        frontal: "El Lóbulo Frontal puede causar negligencia motora, pero la pérdida de la representación visuoespacial y la omisión en el test del reloj provienen de la corteza parietal posterior.",
+        temporal: "El Lóbulo Temporal causaría alteraciones de memoria o comprensión verbal, no la desatención del hemiespacio izquierdo.",
+        occipital: "Una lesión occipital causaría hemianopsia homónima (el paciente sabe que no ve a la izquierda y gira la cabeza para compensar); en la heminegligencia parietal ni siquiera concibe que exista un lado izquierdo.",
+        cerebelo: "El Cerebelo provocaría ataxia y dismetría motora, no la negligencia del espacio ni del propio cuerpo.",
+        tronco: "Una lesión troncal alteraría pares craneales y reflejos vitales, sin producir la extinción espacial hemiatencional típica de la corteza parietal."
+      }
     },
     {
       id: "caso-04",
@@ -488,7 +509,14 @@ const SEED_DATA = {
       ],
       correctRegionId: "occipital",
       syndromeName: "Agnosia Visual de Objetos (Vía Ventral)",
-      explanation: "El daño asienta en las áreas de asociación visual del Lóbulo Occipital y la corriente ventral occipitotemporal. La corteza primaria capta la imagen física, pero las cortezas visuales asociativas no logran vincular esa imagen con el banco de conceptos y significados almacenados."
+      explanation: "El daño asienta en las áreas de asociación visual del Lóbulo Occipital y la corriente ventral occipitotemporal. La corteza primaria capta la imagen física, pero las cortezas visuales asociativas no logran vincular esa imagen con el banco de conceptos y significados almacenados.",
+      differentialFeedback: {
+        frontal: "El Lóbulo Frontal produciría alteraciones en la toma de decisiones o en el lenguaje motor, pero no la incapacidad de reconocer visualmente un objeto común.",
+        parietal: "El Lóbulo Parietal causaría apraxia o astereognosia (no reconocer objetos por el tacto), pero aquí Sofía sí lo reconoce al tocarlo con la mano.",
+        temporal: "El Lóbulo Temporal (área de Wernicke) impediría comprender el nombre verbal, pero Sofía puede nombrarlo en cuanto lo palpa o escucha.",
+        cerebelo: "El Cerebelo afectaría la destreza al manipular el objeto, pero no el reconocimiento visual del mismo.",
+        tronco: "Una lesión troncal afectaría los movimientos oculares (estrabismo o parálisis de la mirada), pero no generaría una agnosia de objetos pura."
+      }
     },
     {
       id: "caso-05",
@@ -504,7 +532,14 @@ const SEED_DATA = {
       ],
       correctRegionId: "cerebelo",
       syndromeName: "Síndrome Atáxico Cerebeloso",
-      explanation: "La ausencia de parálisis con marcada descoordinación motora señala inequívocamente al Cerebelo. El cerebelo calcula los parámetros biomecánicos de precisión, tono y retroalimentación sensorial durante el movimiento activo."
+      explanation: "La ausencia de parálisis con marcada descoordinación motora señala inequívocamente al Cerebelo. El cerebelo calcula los parámetros biomecánicos de precisión, tono y retroalimentación sensorial durante el movimiento activo.",
+      differentialFeedback: {
+        frontal: "El Lóbulo Frontal causaría paresia o parálisis motora espástica; en Javier la fuerza muscular está completamente intacta (5/5).",
+        parietal: "El Lóbulo Parietal causaría ataxia sensorial (que empeora drásticamente al cerrar los ojos, signo de Romberg), pero este cuadro es una ataxia cerebelosa con dismetría y temblor intencional.",
+        temporal: "El Lóbulo Temporal no participa en el control directo de la métrica motora ni de la coordinación del equilibrio.",
+        occipital: "El Lóbulo Occipital causaría problemas de visión, pero no marcha tambaleante ni temblor de acción.",
+        tronco: "Una lesión troncal comprometería núcleos de pares craneales y vías largas con déficit sensitivo-motor cruzado, no un síndrome atáxico puro."
+      }
     },
     {
       id: "caso-06",
@@ -520,7 +555,14 @@ const SEED_DATA = {
       ],
       correctRegionId: "tronco",
       syndromeName: "Síndrome de Enclaustramiento (Locked-in)",
-      explanation: "El infarto interrumpió las vías corticoespinales y corticonucleares en la porción ventral del Tronco Encefálico (puente de Varolio), bloqueando toda salida motora voluntaria pero dejando intacto el sistema reticular ascendente (vigilia) y la corteza cerebral superior."
+      explanation: "El infarto interrumpió las vías corticoespinales y corticonucleares en la porción ventral del Tronco Encefálico (puente de Varolio), bloqueando toda salida motora voluntaria pero dejando intacto el sistema reticular ascendente (vigilia) y la corteza cerebral superior.",
+      differentialFeedback: {
+        frontal: "El Lóbulo Frontal causaría mutismo acinético o abulia profunda, pero en el síndrome de enclaustramiento el paciente está plenamente lúcido y se comunica mediante parpadeo.",
+        parietal: "El Lóbulo Parietal no contiene las vías motoras piramidales compactas capaces de causar una tetraplejía motora total.",
+        temporal: "El Lóbulo Temporal no interviene en la vía motora voluntaria ni en la inervación de los cuatro miembros.",
+        occipital: "El Lóbulo Occipital causaría ceguera o agnosia, pero los ojos de Raúl están sanos y puede moverlos verticalmente.",
+        cerebelo: "El Cerebelo causaría hipotonía y ataxia severa, pero nunca una parálisis motora voluntaria total de las cuatro extremidades."
+      }
     }
   ]
 };
@@ -535,7 +577,8 @@ class NeuroDatabase {
   init() {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (!stored || !JSON.parse(stored).questions[0].optionFeedback) {
+      const parsed = stored ? JSON.parse(stored) : null;
+      if (!parsed || !parsed.cases || !parsed.cases[0].differentialFeedback) {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(SEED_DATA));
       }
       if (!localStorage.getItem(this.PROGRESS_KEY)) {

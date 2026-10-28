@@ -483,11 +483,37 @@
   </main>
 
   <!-- ========================================================================= -->
-  <!-- VISTA 3: CASOS CLÍNICOS (PRD 3.3 - Contenedor para Paso 4)                -->
+  <!-- VISTA 3: CASOS CLÍNICOS (PRD 3.3)                                         -->
   <!-- ========================================================================= -->
   <main id="view-casos" class="hidden flex-1 max-w-[1200px] mx-auto w-full px-4 md:px-8 py-6 space-y-6">
-    <div id="casos-container" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-      <!-- Se implementará en el Paso 4 -->
+    <!-- Hero Header Casos Clínicos -->
+    <div class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-purple-50 text-purple-700 border border-purple-200">
+            Simulación Neuropsicológica
+          </span>
+          <span class="text-xs text-slate-500 font-medium">• Diagnóstico de Lesiones</span>
+        </div>
+        <h1 class="font-display text-xl md:text-2xl font-bold tracking-tight text-slate-900">
+          Rotatorio Clínico: Localización de Lesiones
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-2xl leading-relaxed">
+          Examina la historia del paciente, evalúa los signos semiológicos y selecciona la región cerebral responsable del cuadro. Recibirás un análisis diagnóstico diferencial inmediato.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="initCasos(0)" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-display text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-2xs">
+          <span class="material-symbols-outlined text-[16px] text-slate-500">restart_alt</span>
+          <span>Reiniciar Casos</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenedor del Rotatorio y Caso Activo -->
+    <div id="casos-container" class="space-y-6">
+      <!-- Inyectado dinámicamente desde js/app.js -->
     </div>
   </main>
 

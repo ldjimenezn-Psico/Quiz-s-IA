@@ -56,6 +56,11 @@ function switchTab(tabId) {
     initQuiz();
   }
 
+  // Si cambiamos a casos, iniciar casos
+  if (tabId === 'casos') {
+    initCasos();
+  }
+
   // Si cambiamos a progreso, refrescar dashboard
   if (tabId === 'progreso') {
     renderProgressView();
@@ -705,7 +710,321 @@ function renderQuizSummary() {
   `;
 }
 
-// Placeholder de render de progreso (se ampliará en Paso 5)
+// =========================================================================
+// FUNCIÓN 3: CASOS CLÍNICOS FICTICIOS (PRD 3.3)
+// =========================================================================
+const CasosState = {
+  cases: [],
+  currentIndex: 0,
+  selectedRegionId: null,
+  isAnswered: false
+};
+
+function initCasos(index = 0) {
+  CasosState.cases = window.NeuroDB.getCases();
+  CasosState.currentIndex = index;
+  CasosState.selectedRegionId = null;
+  CasosState.isAnswered = false;
+  renderCaseView();
+}
+
+function renderCaseView() {
+  const container = document.getElementById('casos-container');
+  if (!container) return;
+
+  const total = CasosState.cases.length;
+  if (total === 0) {
+    container.innerHTML = `<p class="text-slate-500">No hay casos clínicos disponibles en la base de datos.</p>`;
+    return;
+  }
+
+  const c = CasosState.cases[CasosState.currentIndex];
+  const progress = window.NeuroDB.getUserProgress();
+  const completedMap = progress.completedCasesMap || {};
+  const allRegions = window.NeuroDB.getRegions();
+  const correctRegion = window.NeuroDB.getRegion(c.correctRegionId);
+
+  // 1. Tira superior del Rotatorio Clínico (Casos 1 al 6)
+  const stripHtml = CasosState.cases.map((item, idx) => {
+    const isCurrent = (idx === CasosState.currentIndex);
+    const isDone = completedMap[item.id] && completedMap[item.id].isCorrect;
+    
+    let borderStyle = isCurrent 
+      ? 'border-2 border-primary bg-primary/10 shadow-sm ring-2 ring-primary/20 scale-[1.02]' 
+      : 'border border-slate-200 bg-white hover:bg-slate-50';
+
+    let statusBadge = isDone 
+      ? `<span class="material-symbols-outlined text-emerald-600 text-sm font-bold">check_circle</span>`
+      : `<span class="text-[10px] text-slate-400 font-mono">#${item.number}</span>`;
+
+    return `
+      <button onclick="initCasos(${idx})" class="p-3 rounded-xl ${borderStyle} text-left transition-all flex flex-col justify-between shrink-0 min-w-[130px] md:min-w-0">
+        <div class="flex items-center justify-between gap-1">
+          <span class="font-display text-[11px] font-bold ${isCurrent ? 'text-primary' : 'text-slate-800'}">
+            Caso #${item.number}
+          </span>
+          ${statusBadge}
+        </div>
+        <p class="text-[11px] font-semibold text-slate-600 truncate mt-1">
+          ${item.title}
+        </p>
+      </button>
+    `;
+  }).join('');
+
+  // 2. Tarjetas de opciones de las 6 regiones para diagnóstico
+  const regionsHtml = allRegions.map(reg => {
+    let cardClasses = "p-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs";
+    let iconHtml = `<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-lg">medical_information</span>`;
+
+    if (CasosState.isAnswered) {
+      if (reg.id === c.correctRegionId) {
+        cardClasses = "p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 font-bold text-left transition-all flex items-center justify-between shadow-xs";
+        iconHtml = `<span class="material-symbols-outlined text-emerald-600 text-xl font-bold">check_circle</span>`;
+      } else if (reg.id === CasosState.selectedRegionId) {
+        cardClasses = "p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-950 font-medium text-left transition-all flex items-center justify-between shadow-xs";
+        iconHtml = `<span class="material-symbols-outlined text-rose-600 text-xl font-bold">cancel</span>`;
+      } else {
+        cardClasses = "p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-left transition-all flex items-center justify-between opacity-50";
+        iconHtml = `<span></span>`;
+      }
+    }
+
+    return `
+      <button onclick="handleCaseDiagnosisSelect('${reg.id}')" class="${cardClasses}" ${CasosState.isAnswered ? 'disabled' : ''}>
+        <div class="flex items-center gap-2.5">
+          <span class="w-3.5 h-3.5 rounded-full shrink-0" style="background-color: ${reg.colorHex}"></span>
+          <div>
+            <span class="text-xs md:text-sm font-bold block leading-tight text-slate-900">${reg.name}</span>
+            <span class="text-[10px] text-slate-500 italic font-serif">${reg.latin}</span>
+          </div>
+        </div>
+        ${iconHtml}
+      </button>
+    `;
+  }).join('');
+
+  // 3. Cuadro de Semiología y Signos Clave
+  const symptomsHtml = c.symptoms.map(s => `
+    <li class="flex items-start gap-2 text-xs md:text-sm text-slate-700 leading-relaxed">
+      <span class="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">stethoscope</span>
+      <span>${s}</span>
+    </li>
+  `).join('');
+
+  // 4. Retroalimentación Diagnóstica Inmediata (Contrastiva)
+  let feedbackHtml = '';
+  if (CasosState.isAnswered) {
+    const isCorrect = (CasosState.selectedRegionId === c.correctRegionId);
+    const isLast = (CasosState.currentIndex + 1 === total);
+
+    if (isCorrect) {
+      feedbackHtml = `
+        <div class="p-5 rounded-2xl border bg-emerald-50 border-emerald-300 text-emerald-950 shadow-sm space-y-3 transition-all">
+          <div class="flex items-center gap-2 border-b border-emerald-200 pb-2.5">
+            <span class="material-symbols-outlined text-2xl text-emerald-600">verified</span>
+            <div>
+              <h4 class="font-display font-bold text-sm md:text-base text-emerald-900">
+                ¡Diagnóstico Neuropsicológico Acertado!
+              </h4>
+              <span class="text-xs text-emerald-800 font-semibold">
+                Síndrome: ${c.syndromeName} (Estructura: ${correctRegion.name})
+              </span>
+            </div>
+          </div>
+          <p class="text-xs md:text-sm leading-relaxed text-slate-800">
+            ${c.explanation}
+          </p>
+          <div class="pt-2 flex justify-end">
+            <button onclick="handleNextCase()" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display text-xs md:text-sm font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-transform active:scale-95">
+              <span>${isLast ? 'Ver Rotatorio Completado' : 'Siguiente Caso Clínico'}</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      const selectedReg = window.NeuroDB.getRegion(CasosState.selectedRegionId);
+      const diffReason = (c.differentialFeedback && c.differentialFeedback[CasosState.selectedRegionId])
+        ? c.differentialFeedback[CasosState.selectedRegionId]
+        : "Esta región cerebral generaría un cuadro clínico diferente al descrito en la historia del paciente.";
+
+      feedbackHtml = `
+        <div class="p-5 rounded-2xl border bg-rose-50/90 border-rose-300 text-rose-950 shadow-sm space-y-4 transition-all">
+          <div class="flex items-center gap-2 border-b border-rose-200 pb-2.5">
+            <span class="material-symbols-outlined text-2xl text-rose-600">cancel</span>
+            <div>
+              <h4 class="font-display font-bold text-sm md:text-base text-rose-900">
+                Diagnóstico Diferencial No Coincidente
+              </h4>
+              <span class="text-xs text-rose-800 font-semibold">
+                Revisa los signos semiológicos del caso:
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-xs md:text-sm leading-relaxed">
+            <!-- Por qué no es la seleccionada -->
+            <div class="p-3.5 rounded-xl bg-white border border-rose-200/90 space-y-1 shadow-2xs">
+              <div class="flex items-center gap-1.5 font-bold text-rose-800">
+                <span class="material-symbols-outlined text-[17px] text-rose-600">close</span>
+                <span>Por qué NO es ${selectedReg ? selectedReg.name : 'la opción elegida'}:</span>
+              </div>
+              <p class="text-slate-700 pl-5 leading-relaxed">
+                ${diffReason}
+              </p>
+            </div>
+
+            <!-- Por qué es la correcta -->
+            <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300/90 space-y-1 shadow-2xs">
+              <div class="flex items-center gap-1.5 font-bold text-emerald-800">
+                <span class="material-symbols-outlined text-[17px] text-emerald-600">check_circle</span>
+                <span>La región responsable es ${correctRegion.name} (${c.syndromeName}):</span>
+              </div>
+              <p class="text-slate-700 pl-5 leading-relaxed">
+                ${c.explanation}
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-2 flex items-center justify-between flex-wrap gap-2">
+            <button onclick="handleRetryCase()" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 font-display text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-2xs">
+              <span class="material-symbols-outlined text-[16px]">replay</span>
+              <span>Reintentar Diagnóstico</span>
+            </button>
+            <button onclick="handleNextCase()" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display text-xs md:text-sm font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-transform active:scale-95">
+              <span>${isLast ? 'Ver Rotatorio Completado' : 'Avanzar a Siguiente Caso'}</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  container.innerHTML = `
+    <!-- Tira de selección de los 6 casos -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between text-xs">
+        <span class="font-display font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-secondary text-base">view_timeline</span>
+          <span>Secuencia del Rotatorio Clínico</span>
+        </span>
+        <span class="text-slate-500 font-mono">Caso ${CasosState.currentIndex + 1} de ${total}</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 overflow-x-auto pb-1">
+        ${stripHtml}
+      </div>
+    </div>
+
+    <!-- Expediente Clínico del Paciente -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-5 p-5 md:p-6">
+      
+      <!-- Encabezado del Paciente -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-secondary to-tertiary text-white flex items-center justify-center font-display font-bold text-base shadow-sm shrink-0">
+            ${c.patient.substring(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border">
+                Caso #${c.number}
+              </span>
+              <h2 class="font-display text-lg md:text-xl font-bold text-slate-900 leading-tight">
+                Paciente: ${c.patient}
+              </h2>
+            </div>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">
+              Motivo: ${c.title}
+            </p>
+          </div>
+        </div>
+
+        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+          Evaluación Neuropsicológica
+        </span>
+      </div>
+
+      <!-- Cuadro de Historia Breve / Anamnesis -->
+      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-1.5">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-primary flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">clinical_notes</span>
+          <span>Anamnesis e Historia Focal</span>
+        </span>
+        <p class="text-xs md:text-sm text-slate-700 leading-relaxed font-normal">
+          ${c.history}
+        </p>
+      </div>
+
+      <!-- Signos y Semiología -->
+      <div class="space-y-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block">
+          Semiología y Hallazgos Objetivos en Consulta
+        </span>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-2 bg-slate-50/50 p-3.5 rounded-xl border border-slate-200/80">
+          ${symptomsHtml}
+        </ul>
+      </div>
+
+      <!-- Pregunta de Localización y Selector -->
+      <div class="pt-3 border-t border-slate-200 space-y-3">
+        <div class="space-y-1">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">
+            Pregunta de Razonamiento Clínico
+          </span>
+          <h3 class="font-display text-base md:text-lg font-bold text-slate-900">
+            ¿Qué región cerebral se encuentra principalmente afectada en este caso?
+          </h3>
+          <p class="text-xs text-slate-500">
+            Toca una de las seis regiones anatómicas para registrar tu diagnóstico:
+          </p>
+        </div>
+
+        <!-- Las 6 Regiones Anatómicas -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+          ${regionsHtml}
+        </div>
+      </div>
+
+      <!-- Feedback Dinámico de la Decisión -->
+      ${feedbackHtml}
+    </div>
+  `;
+}
+
+function handleCaseDiagnosisSelect(regionId) {
+  if (CasosState.isAnswered) return;
+
+  const c = CasosState.cases[CasosState.currentIndex];
+  CasosState.isAnswered = true;
+  CasosState.selectedRegionId = regionId;
+
+  const isCorrect = (regionId === c.correctRegionId);
+
+  // Registrar en la Base de Datos Local
+  window.NeuroDB.recordCaseDiagnosis(c.id, regionId, isCorrect);
+
+  // Re-renderizar caso con el resultado
+  renderCaseView();
+}
+
+function handleRetryCase() {
+  CasosState.isAnswered = false;
+  CasosState.selectedRegionId = null;
+  renderCaseView();
+}
+
+function handleNextCase() {
+  if (CasosState.currentIndex + 1 < CasosState.cases.length) {
+    initCasos(CasosState.currentIndex + 1);
+  } else {
+    // Si terminó todos los casos, llevar a la vista de progreso para ver su récord
+    switchTab('progreso');
+  }
+}
+
+
 function renderProgressView() {
   const stats = window.NeuroDB.getUserProgress();
   const progressContainer = document.getElementById('progress-dashboard-content');
