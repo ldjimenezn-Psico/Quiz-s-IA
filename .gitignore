@@ -32,3 +32,7 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Design references
+_stitch_design/
+

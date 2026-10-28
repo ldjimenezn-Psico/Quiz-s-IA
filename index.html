@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NeuroExplore | Laboratorio Virtual de Neuroanatomía y Neuropsicología</title>
+  
+  <!-- Tipografías Académicas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: "#087F8C",
+              light: "#E6FAF8",
+              hover: "#066A72",
+              dim: "#3BB3AF"
+            },
+            secondary: {
+              DEFAULT: "#3156C8",
+              light: "#E7EEFF",
+              hover: "#2749A8"
+            },
+            tertiary: {
+              DEFAULT: "#7957C8",
+              light: "#F3EFFF"
+            }
+          },
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"],
+            body: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+    }
+    
+    .region-path {
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .region-path:hover {
+      filter: drop-shadow(0 0 14px rgba(8, 127, 140, 0.75)) !important;
+      opacity: 1 !important;
+    }
+
+    @keyframes pulse-subtle {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.75; }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2.2s infinite ease-in-out;
+    }
+
+    @keyframes wave-bar {
+      0%, 100% { height: 4px; }
+      50% { height: 16px; }
+    }
+    .wave-playing .wave-bar:nth-child(1) { animation: wave-bar 0.7s infinite 0.1s ease-in-out; }
+    .wave-playing .wave-bar:nth-child(2) { animation: wave-bar 0.9s infinite 0.25s ease-in-out; }
+    .wave-playing .wave-bar:nth-child(3) { animation: wave-bar 0.6s infinite 0.4s ease-in-out; }
+    .wave-playing .wave-bar:nth-child(4) { animation: wave-bar 0.8s infinite 0.15s ease-in-out; }
+    .wave-playing .wave-bar:nth-child(5) { animation: wave-bar 0.5s infinite 0.3s ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-50 font-body text-slate-900 antialiased min-h-screen flex flex-col pb-20 md:pb-6">
+
+  <!-- ========================================================================= -->
+  <!-- BARRA DE NAVEGACIÓN SUPERIOR                                              -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+    <div class="max-w-[1720px] mx-auto h-16 md:h-20 px-4 md:px-8 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Título Académico -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-sm shrink-0">
+          <span class="material-symbols-outlined text-[24px]">psychology</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-display text-lg md:text-xl font-bold tracking-tight text-slate-900 leading-none">
+              NeuroExplore
+            </span>
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          </div>
+          <span class="text-[10px] md:text-[11px] uppercase tracking-wider text-primary font-semibold block mt-0.5">
+            Laboratorio Virtual de Neuroanatomía · Grado en Psicología
+          </span>
+        </div>
+      </div>
+
+      <!-- Navegación Principal Desktop -->
+      <nav class="hidden md:flex items-center gap-1.5">
+        <button id="nav-btn-explorador" onclick="switchTab('explorador')" class="px-4 py-2 font-display text-xs font-bold uppercase tracking-wider bg-primary text-white rounded-xl shadow-sm flex items-center gap-1.5 transition-all">
+          <span class="material-symbols-outlined text-[18px]">map</span>
+          <span>Explorador 2D</span>
+        </button>
+        <button id="nav-btn-quiz" onclick="switchTab('quiz')" class="px-4 py-2 font-display text-xs font-semibold uppercase tracking-wider text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">quiz</span>
+          <span>Práctica y Quiz</span>
+        </button>
+        <button id="nav-btn-casos" onclick="switchTab('casos')" class="px-4 py-2 font-display text-xs font-semibold uppercase tracking-wider text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">clinical_notes</span>
+          <span>Casos Clínicos</span>
+        </button>
+        <button id="nav-btn-progreso" onclick="switchTab('progreso')" class="px-4 py-2 font-display text-xs font-semibold uppercase tracking-wider text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">bar_chart</span>
+          <span>Mi Progreso</span>
+        </button>
+      </nav>
+
+      <!-- Badge de Estado Académico -->
+      <div class="hidden lg:flex items-center gap-3">
+        <div class="text-right">
+          <span class="text-[10px] uppercase font-bold text-slate-500 block">Base de Datos</span>
+          <span class="text-xs font-bold text-secondary flex items-center gap-1 justify-end">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectada y Local
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- VISTA 1: EXPLORADOR 2D (PRD 3.1)                                          -->
+  <!-- ========================================================================= -->
+  <main id="view-explorador" class="flex-1 max-w-[1720px] mx-auto w-full px-4 md:px-8 py-6 space-y-6">
+    
+    <!-- Hero Header / Modo de Exploración -->
+    <div class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-teal-50 text-teal-700 border border-teal-200">
+            Atlas Neuropsicológico 2D
+          </span>
+          <span class="text-xs text-slate-500 font-medium hidden sm:inline">• Toca cualquier lóbulo para estudiar sus funciones</span>
+        </div>
+        <h1 class="font-display text-xl md:text-2xl font-bold tracking-tight text-slate-900">
+          Exploración Topográfica del Encéfalo Humano
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-3xl leading-relaxed">
+          Selecciona una de las seis regiones cerebrales para consultar su ubicación anatómica, sus funciones en la conducta y cognición humana, y el síndrome derivado de una lesión clínica.
+        </p>
+      </div>
+
+      <!-- Barra de Herramientas Rápida -->
+      <div class="flex items-center gap-2.5 flex-wrap shrink-0">
+        <!-- Audio Guía con SpeechSynthesis -->
+        <button id="btn-audio-guide" onclick="toggleAudioExplanation()" class="px-3.5 py-2 rounded-xl border border-secondary/20 bg-secondary/10 hover:bg-secondary/20 text-secondary font-display text-xs font-bold tracking-wider uppercase flex items-center gap-2 transition-all shadow-2xs">
+          <div id="wave-container" class="flex items-end gap-0.5 h-3.5">
+            <span class="wave-bar w-1 bg-secondary rounded-full h-1"></span>
+            <span class="wave-bar w-1 bg-secondary rounded-full h-2.5"></span>
+            <span class="wave-bar w-1 bg-secondary rounded-full h-1.5"></span>
+            <span class="wave-bar w-1 bg-secondary rounded-full h-3"></span>
+            <span class="wave-bar w-1 bg-secondary rounded-full h-1"></span>
+          </div>
+          <span id="audio-btn-label">Escuchar Audio</span>
+          <span class="material-symbols-outlined text-[16px]">volume_up</span>
+        </button>
+
+        <!-- Reiniciar a Frontal -->
+        <button onclick="selectRegion('frontal')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-display text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-2xs">
+          <span class="material-symbols-outlined text-[16px] text-slate-500">restart_alt</span>
+          <span>Reiniciar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Layout: 7 Columnas Workbench Visual / 5 Columnas Dossier Pedagógico -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- COLUMNA IZQUIERDA: DIBUJO CEREBRAL 2D VECTORIAL (7 cols) -->
+      <div class="lg:col-span-7 space-y-4">
+        
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
+          
+          <!-- Barra superior del lienzo -->
+          <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px] text-primary">hub</span>
+              <span class="font-display font-bold uppercase tracking-wider text-slate-800">
+                Hemisferio Izquierdo (Vista Lateral)
+              </span>
+              <span class="bg-primary/10 text-primary font-bold px-2 py-0.5 rounded text-[10px] uppercase">
+                6 Regiones
+              </span>
+            </div>
+
+            <!-- Controles de Zoom -->
+            <div class="flex items-center gap-1.5">
+              <span id="zoom-text" class="text-[11px] font-mono font-bold text-slate-500">100%</span>
+              <div class="flex items-center rounded-lg border border-slate-200 bg-white overflow-hidden shadow-2xs">
+                <button onclick="adjustZoom(-10)" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 text-slate-700 transition-colors" title="Alejar">
+                  <span class="material-symbols-outlined text-[15px]">remove</span>
+                </button>
+                <button onclick="resetZoom()" class="w-7 h-7 border-x border-slate-200 flex items-center justify-center hover:bg-slate-100 text-slate-700 transition-colors" title="Restablecer">
+                  <span class="material-symbols-outlined text-[15px]">fit_screen</span>
+                </button>
+                <button onclick="adjustZoom(10)" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 text-slate-700 transition-colors" title="Acercar">
+                  <span class="material-symbols-outlined text-[15px]">add</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Indicador flotante de estructura activa -->
+          <div class="absolute top-14 right-3 z-20 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-2 pointer-events-none">
+            <span id="canvas-indicator-dot" class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+            <span class="text-[11px] text-slate-500 font-medium">Activo:</span>
+            <span id="canvas-active-name" class="font-display text-xs font-bold text-slate-900 uppercase tracking-wider">Lóbulo Frontal</span>
+          </div>
+
+          <!-- LIENZO SVG CEREBRAL 2D INTERACTIVO -->
+          <div id="svg-viewport" class="relative w-full aspect-[4/3] bg-gradient-to-b from-[#F8FAFE] to-[#F1F5F9] flex items-center justify-center p-2 sm:p-6 overflow-hidden select-none">
+            
+            <!-- Patrón de cuadrícula neuroanatómica -->
+            <svg class="absolute inset-0 w-full h-full opacity-30 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="grid-dots" width="28" height="28" patternUnits="userSpaceOnUse">
+                  <circle cx="14" cy="14" r="1" fill="#94A3B8"></circle>
+                  <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#E2E8F0" stroke-width="0.6" stroke-dasharray="2,2"></path>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid-dots)"></rect>
+            </svg>
+
+            <!-- Capa escalable del encéfalo -->
+            <div id="brain-scalable-layer" class="w-full h-full max-w-[690px] max-h-[520px] transition-transform duration-300 ease-out flex items-center justify-center relative">
+              <svg viewBox="0 0 800 600" class="w-full h-full drop-shadow-lg overflow-visible" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <!-- Filtros de resplandor (Glow) para cada región -->
+                  <filter id="glow-frontal" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#087F8C" flood-opacity="0.8"></feDropShadow>
+                  </filter>
+                  <filter id="glow-parietal" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#3156C8" flood-opacity="0.8"></feDropShadow>
+                  </filter>
+                  <filter id="glow-temporal" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#059669" flood-opacity="0.8"></feDropShadow>
+                  </filter>
+                  <filter id="glow-occipital" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#7957C8" flood-opacity="0.8"></feDropShadow>
+                  </filter>
+                  <filter id="glow-cerebelo" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#E11D48" flood-opacity="0.8"></feDropShadow>
+                  </filter>
+                  <filter id="glow-tronco" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#0284C7" flood-opacity="0.8"></feDropShadow>
+                  </filter>
+
+                  <!-- Gradientes cromáticos de las 6 estructuras -->
+                  <linearGradient id="grad-frontal" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#14B8A6"></stop>
+                    <stop offset="100%" stop-color="#087F8C"></stop>
+                  </linearGradient>
+                  <linearGradient id="grad-parietal" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#4F75E8"></stop>
+                    <stop offset="100%" stop-color="#3156C8"></stop>
+                  </linearGradient>
+                  <linearGradient id="grad-temporal" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#34D399"></stop>
+                    <stop offset="100%" stop-color="#059669"></stop>
+                  </linearGradient>
+                  <linearGradient id="grad-occipital" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#9A77E8"></stop>
+                    <stop offset="100%" stop-color="#7957C8"></stop>
+                  </linearGradient>
+                  <linearGradient id="grad-cerebelo" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#F43F5E"></stop>
+                    <stop offset="100%" stop-color="#BE123C"></stop>
+                  </linearGradient>
+                  <linearGradient id="grad-tronco" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#38BDF8"></stop>
+                    <stop offset="100%" stop-color="#0284C7"></stop>
+                  </linearGradient>
+                </defs>
+
+                <!-- Silueta base de fondo -->
+                <path d="M 230,120 C 130,150 90,260 110,340 C 130,420 220,440 280,430 C 310,430 330,440 370,490 C 390,520 410,550 420,570 L 450,570 C 470,540 480,480 470,450 C 510,490 560,510 630,480 C 700,440 700,380 670,330 C 730,290 730,210 680,160 C 620,100 510,70 410,70 C 320,70 260,95 230,120 Z" fill="#E2E8F0" opacity="0.45"></path>
+
+                <!-- ================= 1. LÓBULO FRONTAL ================= -->
+                <g id="region-svg-frontal" class="region-path group" onclick="selectRegion('frontal')" style="filter: url(#glow-frontal); opacity: 1;">
+                  <path d="M 230,120 C 270,95 350,75 420,75 C 440,75 450,90 445,150 C 440,190 425,230 405,270 C 390,300 370,315 320,315 C 260,315 220,310 180,310 C 130,310 100,260 110,210 C 120,150 170,125 230,120 Z" fill="url(#grad-frontal)" stroke="#044D55" stroke-width="2.5"></path>
+                  <path d="M 420,85 C 410,135 390,195 385,260" fill="none" stroke="#044D55" stroke-width="2.2" stroke-linecap="round" opacity="0.7"></path>
+                  <path d="M 375,100 C 360,150 345,190 335,250" fill="none" stroke="#044D55" stroke-width="2" stroke-linecap="round" opacity="0.6"></path>
+                  <path d="M 230,160 C 280,155 330,160 365,170" fill="none" stroke="#044D55" stroke-width="2" stroke-linecap="round" opacity="0.6"></path>
+                  <path d="M 170,225 C 230,220 300,230 335,245" fill="none" stroke="#044D55" stroke-width="2" stroke-linecap="round" opacity="0.6"></path>
+                  <!-- Pin Área de Broca -->
+                  <circle cx="295" cy="275" r="9" fill="#087F8C" opacity="0.3" class="animate-pulse-subtle"></circle>
+                  <circle cx="295" cy="275" r="5" fill="#FFFFFF" stroke="#044D55" stroke-width="2"></circle>
+                  <circle cx="295" cy="275" r="2.5" fill="#087F8C"></circle>
+                </g>
+
+                <!-- ================= 2. LÓBULO PARIETAL ================= -->
+                <g id="region-svg-parietal" class="region-path group" onclick="selectRegion('parietal')" style="opacity: 0.65;">
+                  <path d="M 420,75 C 500,75 580,95 620,140 C 645,170 640,200 625,230 C 585,250 540,265 480,270 C 455,270 420,265 405,270 C 425,230 440,190 445,150 C 450,90 440,75 420,75 Z" fill="url(#grad-parietal)" stroke="#1C3586" stroke-width="2.5"></path>
+                  <path d="M 450,85 C 445,130 430,190 415,260" fill="none" stroke="#1C3586" stroke-width="2.2" stroke-linecap="round" opacity="0.75"></path>
+                  <path d="M 475,105 C 470,150 455,200 445,255" fill="none" stroke="#1C3586" stroke-width="2" stroke-linecap="round" opacity="0.6"></path>
+                  <path d="M 480,170 C 530,175 575,190 610,210" fill="none" stroke="#1C3586" stroke-width="2" stroke-linecap="round" opacity="0.6"></path>
+                  <!-- Pin Corteza Somatosensorial -->
+                  <circle cx="438" cy="165" r="9" fill="#3156C8" opacity="0.3" class="animate-pulse-subtle"></circle>
+                  <circle cx="438" cy="165" r="5" fill="#FFFFFF" stroke="#1C3586" stroke-width="2"></circle>
+                  <circle cx="438" cy="165" r="2.5" fill="#3156C8"></circle>
+                </g>
+
+                <!-- ================= 3. LÓBULO OCCIPITAL ================= -->
+                <g id="region-svg-occipital" class="region-path group" onclick="selectRegion('occipital')" style="opacity: 0.65;">
+                  <path d="M 620,140 C 670,180 705,230 700,270 C 695,310 660,340 625,355 C 595,335 585,300 580,270 C 605,255 618,245 625,230 C 640,200 645,170 620,140 Z" fill="url(#grad-occipital)" stroke="#4E338A" stroke-width="2.5"></path>
+                  <path d="M 640,200 C 670,220 685,250 675,280" fill="none" stroke="#4E338A" stroke-width="2" stroke-linecap="round" opacity="0.7"></path>
+                  <path d="M 610,290 C 640,300 665,315 650,340" fill="none" stroke="#4E338A" stroke-width="2" stroke-linecap="round" opacity="0.7"></path>
+                  <!-- Pin V1 Visual Primaria -->
+                  <circle cx="680" cy="270" r="9" fill="#7957C8" opacity="0.3" class="animate-pulse-subtle"></circle>
+                  <circle cx="680" cy="270" r="5" fill="#FFFFFF" stroke="#4E338A" stroke-width="2"></circle>
+                  <circle cx="680" cy="270" r="2.5" fill="#7957C8"></circle>
+                </g>
+
+                <!-- ================= 4. LÓBULO TEMPORAL ================= -->
+                <g id="region-svg-temporal" class="region-path group" onclick="selectRegion('temporal')" style="opacity: 0.65;">
+                  <path d="M 180,310 C 220,310 260,315 320,315 C 370,315 410,285 480,270 C 540,265 580,270 580,270 C 585,300 595,335 625,355 C 610,380 570,395 530,395 C 450,395 380,410 320,410 C 240,410 180,390 150,350 C 135,325 150,312 180,310 Z" fill="url(#grad-temporal)" stroke="#065F46" stroke-width="2.5"></path>
+                  <path d="M 220,320 C 310,325 410,300 510,285" fill="none" stroke="#065F46" stroke-width="2.2" stroke-linecap="round" opacity="0.75"></path>
+                  <path d="M 200,350 C 290,355 400,345 520,330" fill="none" stroke="#065F46" stroke-width="2" stroke-linecap="round" opacity="0.65"></path>
+                  <path d="M 230,380 C 320,385 420,380 500,370" fill="none" stroke="#065F46" stroke-width="2" stroke-linecap="round" opacity="0.65"></path>
+                  <!-- Pin Área de Wernicke -->
+                  <circle cx="490" cy="295" r="9" fill="#059669" opacity="0.3" class="animate-pulse-subtle"></circle>
+                  <circle cx="490" cy="295" r="5" fill="#FFFFFF" stroke="#065F46" stroke-width="2"></circle>
+                  <circle cx="490" cy="295" r="2.5" fill="#059669"></circle>
+                </g>
+
+                <!-- ================= 5. CEREBELO ================= -->
+                <g id="region-svg-cerebelo" class="region-path group" onclick="selectRegion('cerebelo')" style="opacity: 0.65;">
+                  <path d="M 530,395 C 580,395 620,375 640,360 C 675,385 680,430 645,465 C 600,500 530,490 480,450 C 470,410 495,395 530,395 Z" fill="url(#grad-cerebelo)" stroke="#9F1239" stroke-width="2.5"></path>
+                  <path d="M 510,425 C 555,420 605,405 640,390" fill="none" stroke="#9F1239" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></path>
+                  <path d="M 500,445 C 550,445 600,435 635,420" fill="none" stroke="#9F1239" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></path>
+                  <!-- Pin Hemisferio Cerebeloso -->
+                  <circle cx="575" cy="445" r="9" fill="#E11D48" opacity="0.3" class="animate-pulse-subtle"></circle>
+                  <circle cx="575" cy="445" r="5" fill="#FFFFFF" stroke="#9F1239" stroke-width="2"></circle>
+                  <circle cx="575" cy="445" r="2.5" fill="#E11D48"></circle>
+                </g>
+
+                <!-- ================= 6. TRONCO ENCEFÁLICO ================= -->
+                <g id="region-svg-tronco" class="region-path group" onclick="selectRegion('tronco')" style="opacity: 0.65;">
+                  <path d="M 370,390 C 395,390 415,395 425,410 C 450,415 470,425 470,450 C 465,490 460,530 445,565 L 415,565 C 405,530 380,485 365,445 C 355,415 360,390 370,390 Z" fill="url(#grad-tronco)" stroke="#0369A1" stroke-width="2.5"></path>
+                  <path d="M 368,435 C 385,445 425,440 445,430" fill="none" stroke="#0369A1" stroke-width="2" stroke-linecap="round" opacity="0.75"></path>
+                  <path d="M 380,480 C 400,485 435,480 450,470" fill="none" stroke="#0369A1" stroke-width="2" stroke-linecap="round" opacity="0.7"></path>
+                  <!-- Pin Protuberancia Troncal -->
+                  <circle cx="410" cy="450" r="9" fill="#0284C7" opacity="0.3" class="animate-pulse-subtle"></circle>
+                  <circle cx="410" cy="450" r="5" fill="#FFFFFF" stroke="#0369A1" stroke-width="2"></circle>
+                  <circle cx="410" cy="450" r="2.5" fill="#0284C7"></circle>
+                </g>
+
+                <!-- ================= ETIQUETAS FLOTANTES CALLOUTS ================= -->
+                <g id="callout-frontal" class="pointer-events-none transition-opacity duration-300">
+                  <polyline points="210,140 140,110 50,110" fill="none" stroke="#087F8C" stroke-width="1.6" stroke-dasharray="3,3"></polyline>
+                  <circle cx="210" cy="140" r="3.5" fill="#087F8C"></circle>
+                  <rect x="25" y="94" width="112" height="26" rx="6" fill="#FFFFFF" stroke="#087F8C" stroke-width="1.5"></rect>
+                  <text x="81" y="111" fill="#087F8C" font-family="Space Grotesk" font-size="11" font-weight="700" text-anchor="middle">LÓB. FRONTAL</text>
+                </g>
+                <g id="callout-parietal" class="pointer-events-none transition-opacity duration-300" style="opacity: 0.35;">
+                  <polyline points="520,115 570,60 670,60" fill="none" stroke="#3156C8" stroke-width="1.6" stroke-dasharray="3,3"></polyline>
+                  <circle cx="520" cy="115" r="3.5" fill="#3156C8"></circle>
+                  <rect x="665" y="46" width="116" height="26" rx="6" fill="#FFFFFF" stroke="#3156C8" stroke-width="1.5"></rect>
+                  <text x="723" y="63" fill="#3156C8" font-family="Space Grotesk" font-size="11" font-weight="700" text-anchor="middle">LÓB. PARIETAL</text>
+                </g>
+                <g id="callout-occipital" class="pointer-events-none transition-opacity duration-300" style="opacity: 0.35;">
+                  <polyline points="665,240 720,240 735,210" fill="none" stroke="#7957C8" stroke-width="1.6" stroke-dasharray="3,3"></polyline>
+                  <circle cx="665" cy="240" r="3.5" fill="#7957C8"></circle>
+                  <rect x="680" y="195" width="116" height="26" rx="6" fill="#FFFFFF" stroke="#7957C8" stroke-width="1.5"></rect>
+                  <text x="738" y="212" fill="#7957C8" font-family="Space Grotesk" font-size="11" font-weight="700" text-anchor="middle">LÓB. OCCIPITAL</text>
+                </g>
+                <g id="callout-temporal" class="pointer-events-none transition-opacity duration-300" style="opacity: 0.35;">
+                  <polyline points="320,380 260,460 170,460" fill="none" stroke="#059669" stroke-width="1.6" stroke-dasharray="3,3"></polyline>
+                  <circle cx="320" cy="380" r="3.5" fill="#059669"></circle>
+                  <rect x="55" y="446" width="120" height="26" rx="6" fill="#FFFFFF" stroke="#059669" stroke-width="1.5"></rect>
+                  <text x="115" y="463" fill="#059669" font-family="Space Grotesk" font-size="11" font-weight="700" text-anchor="middle">LÓB. TEMPORAL</text>
+                </g>
+                <g id="callout-cerebelo" class="pointer-events-none transition-opacity duration-300" style="opacity: 0.35;">
+                  <polyline points="630,450 690,470 690,520" fill="none" stroke="#BE123C" stroke-width="1.6" stroke-dasharray="3,3"></polyline>
+                  <circle cx="630" cy="450" r="3.5" fill="#BE123C"></circle>
+                  <rect x="635" y="520" width="110" height="26" rx="6" fill="#FFFFFF" stroke="#BE123C" stroke-width="1.5"></rect>
+                  <text x="690" y="537" fill="#BE123C" font-family="Space Grotesk" font-size="11" font-weight="700" text-anchor="middle">CEREBELO</text>
+                </g>
+                <g id="callout-tronco" class="pointer-events-none transition-opacity duration-300" style="opacity: 0.35;">
+                  <polyline points="420,530 420,580 340,580" fill="none" stroke="#0284C7" stroke-width="1.6" stroke-dasharray="3,3"></polyline>
+                  <circle cx="420" cy="530" r="3.5" fill="#0284C7"></circle>
+                  <rect x="230" y="567" width="110" height="26" rx="6" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.5"></rect>
+                  <text x="285" y="584" fill="#0284C7" font-family="Space Grotesk" font-size="11" font-weight="700" text-anchor="middle">TRONCO ENC.</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Selector táctil móvil rápido (Chips debajo del cerebro) -->
+          <div class="p-3 bg-white border-t border-slate-200">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 block">
+              Selector Directo por Estructura
+            </span>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+              <button id="chip-frontal" onclick="selectRegion('frontal')" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition-all">
+                <span class="w-3 h-3 rounded-full bg-[#087F8C] shrink-0"></span>
+                <span class="text-xs font-bold truncate">Frontal</span>
+              </button>
+              <button id="chip-parietal" onclick="selectRegion('parietal')" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition-all">
+                <span class="w-3 h-3 rounded-full bg-[#3156C8] shrink-0"></span>
+                <span class="text-xs font-bold truncate">Parietal</span>
+              </button>
+              <button id="chip-temporal" onclick="selectRegion('temporal')" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition-all">
+                <span class="w-3 h-3 rounded-full bg-[#059669] shrink-0"></span>
+                <span class="text-xs font-bold truncate">Temporal</span>
+              </button>
+              <button id="chip-occipital" onclick="selectRegion('occipital')" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition-all">
+                <span class="w-3 h-3 rounded-full bg-[#7957C8] shrink-0"></span>
+                <span class="text-xs font-bold truncate">Occipital</span>
+              </button>
+              <button id="chip-cerebelo" onclick="selectRegion('cerebelo')" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition-all">
+                <span class="w-3 h-3 rounded-full bg-[#BE123C] shrink-0"></span>
+                <span class="text-xs font-bold truncate">Cerebelo</span>
+              </button>
+              <button id="chip-tronco" onclick="selectRegion('tronco')" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition-all">
+                <span class="w-3 h-3 rounded-full bg-[#0284C7] shrink-0"></span>
+                <span class="text-xs font-bold truncate">Tronco</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: DOSSIER PEDAGÓGICO DINÁMICO (5 cols) -->
+      <div class="lg:col-span-5">
+        <div id="region-dossier-container" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <!-- Inyectado dinámicamente desde js/app.js usando NeuroDB -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VISTA 2: PRÁCTICA Y QUIZ (PRD 3.2 - Contenedor para Paso 3)              -->
+  <!-- ========================================================================= -->
+  <main id="view-quiz" class="hidden flex-1 max-w-[1200px] mx-auto w-full px-4 md:px-8 py-6 space-y-6">
+    <div id="quiz-container" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+      <!-- Se implementará en el Paso 3 -->
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VISTA 3: CASOS CLÍNICOS (PRD 3.3 - Contenedor para Paso 4)                -->
+  <!-- ========================================================================= -->
+  <main id="view-casos" class="hidden flex-1 max-w-[1200px] mx-auto w-full px-4 md:px-8 py-6 space-y-6">
+    <div id="casos-container" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+      <!-- Se implementará en el Paso 4 -->
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- VISTA 4: MI PROGRESO (Base de Datos - Contenedor para Paso 5)             -->
+  <!-- ========================================================================= -->
+  <main id="view-progreso" class="hidden flex-1 max-w-[1200px] mx-auto w-full px-4 md:px-8 py-6 space-y-6">
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+      <div class="border-b border-slate-200 pb-4">
+        <h2 class="font-display text-2xl font-bold text-slate-900">Historial y Métricas de Aprendizaje</h2>
+        <p class="text-xs text-slate-500">Datos guardados de forma persistente en tu navegador.</p>
+      </div>
+      <div id="progress-dashboard-content">
+        <!-- Renderizado dinámicamente -->
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- NAVEGACIÓN MÓVIL INFERIOR (Para pantallas de celular)                     -->
+  <!-- ========================================================================= -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-3 shadow-lg flex items-center justify-around">
+    <button id="mobile-btn-explorador" onclick="switchTab('explorador')" class="flex flex-col items-center justify-center text-primary font-bold text-[10px]">
+      <span class="material-symbols-outlined text-[22px]">map</span>
+      <span>Explorar</span>
+    </button>
+    <button id="mobile-btn-quiz" onclick="switchTab('quiz')" class="flex flex-col items-center justify-center text-slate-500 text-[10px]">
+      <span class="material-symbols-outlined text-[22px]">quiz</span>
+      <span>Quiz</span>
+    </button>
+    <button id="mobile-btn-casos" onclick="switchTab('casos')" class="flex flex-col items-center justify-center text-slate-500 text-[10px]">
+      <span class="material-symbols-outlined text-[22px]">clinical_notes</span>
+      <span>Casos</span>
+    </button>
+    <button id="mobile-btn-progreso" onclick="switchTab('progreso')" class="flex flex-col items-center justify-center text-slate-500 text-[10px]">
+      <span class="material-symbols-outlined text-[22px]">bar_chart</span>
+      <span>Progreso</span>
+    </button>
+  </div>
+
+  <!-- Scripts del Sistema -->
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
