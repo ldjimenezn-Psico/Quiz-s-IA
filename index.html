@@ -451,11 +451,34 @@
   </main>
 
   <!-- ========================================================================= -->
-  <!-- VISTA 2: PRÁCTICA Y QUIZ (PRD 3.2 - Contenedor para Paso 3)              -->
+  <!-- VISTA 2: PRÁCTICA Y QUIZ (PRD 3.2)                                        -->
   <!-- ========================================================================= -->
-  <main id="view-quiz" class="hidden flex-1 max-w-[1200px] mx-auto w-full px-4 md:px-8 py-6 space-y-6">
-    <div id="quiz-container" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-      <!-- Se implementará en el Paso 3 -->
+  <main id="view-quiz" class="hidden flex-1 max-w-[1100px] mx-auto w-full px-4 md:px-8 py-6 space-y-6">
+    <!-- Hero Header Quiz -->
+    <div class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-blue-50 text-blue-700 border border-blue-200">
+            Módulo de Evaluación
+          </span>
+          <span class="text-xs text-slate-500 font-medium">• Selección Múltiple</span>
+        </div>
+        <h1 class="font-display text-xl md:text-2xl font-bold tracking-tight text-slate-900">
+          Identificación y Correlatos Anatomo-Funcionales
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-2xl leading-relaxed">
+          Pon a prueba tus conocimientos sobre localización, funciones y lesiones. Cada pregunta cuenta con cuatro opciones y retroalimentación didáctica inmediata que queda registrada en tu progreso.
+        </p>
+      </div>
+
+      <button onclick="initQuiz()" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-display text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-2xs shrink-0 self-start sm:self-auto">
+        <span class="material-symbols-outlined text-[16px] text-slate-500">restart_alt</span>
+        <span>Reiniciar Test</span>
+      </button>
+    </div>
+
+    <div id="quiz-container" class="bg-white p-5 md:p-7 rounded-2xl border border-slate-200 shadow-sm">
+      <!-- Se inyecta dinámicamente desde js/app.js -->
     </div>
   </main>
 
