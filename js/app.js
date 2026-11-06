@@ -804,162 +804,251 @@ function renderCaseView() {
     `;
   }).join('');
 
-  // 3. Mapa Cerebral de Lesión Focal (SVG oscuro tipo scan)
+  // 3. Mapa Cerebral de Lesión Focal — diseño Stitch fiel
   const lesionMapHtml = (() => {
     const fl = c.focalLesion;
     if (!fl) return '';
+
+    // Colores del lóbulo afectado según la región correcta
+    const lobeHighlight = {
+      frontal:   { fill: '#0a2a2a', stroke: '#38efd4', label: 'LÓBULO FRONTAL',    sub: 'Corteza Motora & Prefrontal' },
+      parietal:  { fill: '#2a1800', stroke: '#d2a060', label: 'L. PARIETAL',        sub: 'Somatosensorial / Primario' },
+      temporal:  { fill: '#0a1835', stroke: '#4a8adf', label: 'L. TEMPORAL',        sub: 'Giro Sup. / Área Wernicke' },
+      occipital: { fill: '#1a0f30', stroke: '#8a60d0', label: 'L. OCCIPITAL',       sub: 'Córtex Visual (V1/V2)' },
+      cerebelo:  { fill: '#051e1a', stroke: '#1a9a8a', label: 'CEREBELO',           sub: 'Neocerebelo / Vermis' },
+      tronco:    { fill: '#200e04', stroke: '#a06030', label: 'TRONCO ENCEFÁLICO',  sub: 'Base Ventral Pontina' }
+    };
+
+    const lh = lobeHighlight[c.correctRegionId] || lobeHighlight.frontal;
+
+    // Colores base de cada lóbulo (el afectado se ilumina más)
+    const getLobeStyle = (lobeId) => {
+      if (lobeId === c.correctRegionId) {
+        return { fill: lh.fill, stroke: lh.stroke, fillOp: '0.92', strokeW: '2.2' };
+      }
+      return { fill: '#040d1a', stroke: '#1a3050', fillOp: '0.7', strokeW: '1.2' };
+    };
+
+    const sf = getLobeStyle('frontal');
+    const sp = getLobeStyle('parietal');
+    const so = getLobeStyle('occipital');
+    const st = getLobeStyle('temporal');
+    const sc = getLobeStyle('cerebelo');
+    const str = getLobeStyle('tronco');
+
     return `
-      <div class="rounded-2xl overflow-hidden border border-slate-700 shadow-lg bg-[#060d17]">
-        <div class="px-4 py-2.5 border-b border-slate-700 flex items-center justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-cyan-400 flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-[14px]">biotech</span>
-            Localización Focal de la Lesión — Neuroimagen 2D
-          </span>
-          <span class="text-[10px] font-mono text-slate-400">${fl.telemetry}</span>
+      <div class="rounded-2xl overflow-hidden border border-[#162740] shadow-xl bg-[#060d17]">
+        <!-- Encabezado tipo scan médico -->
+        <div class="p-3 bg-[#0a1628] border-b border-[#162740] flex flex-col gap-1.5">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#38efd4] text-[18px]">biotech</span>
+              <span class="font-bold text-xs tracking-wider text-white uppercase">MAPEO LESIONAL ANATÓMICO · HEMISFERIO CEREBRAL</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-[#b71c1c] text-white text-[10px] font-bold tracking-wide flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>● FOCO LESIONAL ACTIVO
+              </span>
+              <span class="px-2 py-0.5 rounded bg-[#10233d] text-[#6bd8cb] text-[10px] font-semibold tracking-wider">PLANO SAGITAL / VISTA LATERAL</span>
+            </div>
+          </div>
+          <div class="font-mono text-[10px] text-[#38efd4] tracking-wide opacity-90">${fl.telemetry}</div>
         </div>
-        <svg viewBox="0 0 540 330" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto" style="background:#060d17">
-          <defs>
-            <radialGradient id="lesionGlowRed" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.9"/>
-              <stop offset="60%" stop-color="#ef4444" stop-opacity="0.4"/>
-              <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
-            </radialGradient>
-            <pattern id="hatchRed" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="6" stroke="#ef4444" stroke-width="1.5" stroke-opacity="0.5"/>
-            </pattern>
-            <filter id="brainGlow">
-              <feGaussianBlur stdDeviation="2" result="blur"/>
-              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-            </filter>
-            <pattern id="gridDots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="10" cy="10" r="0.8" fill="#1e3a5f" opacity="0.6"/>
-            </pattern>
-          </defs>
-          <!-- Fondo cuadrícula -->
-          <rect width="540" height="330" fill="url(#gridDots)"/>
 
-          <!-- Silueta cerebro lateral (paths simplificados por región) -->
-          <!-- Frontal -->
-          <path id="map-frontal" d="M120,90 Q145,65 185,60 Q220,55 245,70 Q260,80 265,105 Q270,130 255,150 Q240,168 215,175 Q195,178 175,170 Q150,158 130,140 Q115,125 120,90Z"
-            fill="#087F8C" fill-opacity="0.18" stroke="#087F8C" stroke-width="1.5" stroke-opacity="0.5"/>
-          <!-- Parietal -->
-          <path id="map-parietal" d="M265,105 Q280,90 310,90 Q340,90 355,108 Q368,125 362,148 Q355,168 338,178 Q318,186 298,182 Q275,176 262,160 Q252,145 255,128 Q258,115 265,105Z"
-            fill="#3156C8" fill-opacity="0.18" stroke="#3156C8" stroke-width="1.5" stroke-opacity="0.5"/>
-          <!-- Temporal -->
-          <path id="map-temporal" d="M175,170 Q195,178 215,180 Q240,182 255,175 Q265,195 262,220 Q258,240 240,252 Q220,262 198,258 Q175,252 162,235 Q152,218 155,200 Q158,185 175,170Z"
-            fill="#059669" fill-opacity="0.18" stroke="#059669" stroke-width="1.5" stroke-opacity="0.5"/>
-          <!-- Occipital -->
-          <path id="map-occipital" d="M338,178 Q355,168 368,155 Q382,140 392,158 Q402,175 400,200 Q398,222 382,235 Q364,248 344,245 Q324,240 312,225 Q298,208 298,190 Q300,180 318,182 Q328,186 338,178Z"
-            fill="#7957C8" fill-opacity="0.18" stroke="#7957C8" stroke-width="1.5" stroke-opacity="0.5"/>
-          <!-- Cerebelo -->
-          <path id="map-cerebelo" d="M312,258 Q330,245 350,248 Q372,252 386,265 Q398,278 395,295 Q390,310 372,315 Q352,318 334,310 Q315,300 308,285 Q305,272 312,258Z"
-            fill="#BE123C" fill-opacity="0.18" stroke="#BE123C" stroke-width="1.5" stroke-opacity="0.5"/>
-          <!-- Tronco -->
-          <path id="map-tronco" d="M262,240 Q272,230 285,232 Q298,235 305,250 Q310,265 305,280 Q298,295 283,298 Q268,298 262,285 Q255,270 258,255 Q260,248 262,240Z"
-            fill="#0284C7" fill-opacity="0.18" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.5"/>
+        <!-- Lienzo SVG anatómico cerebral -->
+        <div class="relative w-full p-3 flex flex-col items-center justify-center bg-[radial-gradient(#162b47_1px,transparent_1px)] [background-size:16px_16px]">
+          <svg class="w-full max-w-[520px] h-auto select-none" viewBox="0 0 540 330" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid-pattern-${c.id}" width="30" height="30" patternUnits="userSpaceOnUse">
+                <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#0d1e33" stroke-width="0.5"/>
+              </pattern>
+              <radialGradient id="lesionGlow-${c.id}" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ff3b30" stop-opacity="0.9"/>
+                <stop offset="65%" stop-color="#d32f2f" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#b71c1c" stop-opacity="0"/>
+              </radialGradient>
+              <pattern id="hatchRed-${c.id}" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="0" x2="0" y2="6" stroke="#ff5252" stroke-width="1.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-pattern-${c.id})" opacity="0.6"/>
 
-          <!-- Foco lesional: halo rojo + patrón hatch -->
-          <circle cx="${fl.cx}" cy="${fl.cy}" r="34" fill="url(#lesionGlowRed)"/>
-          <circle cx="${fl.cx}" cy="${fl.cy}" r="18" fill="url(#hatchRed)" stroke="#ef4444" stroke-width="1.5" opacity="0.85">
-            <animate attributeName="r" values="16;20;16" dur="2s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.85;0.55;0.85" dur="2s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="${fl.cx}" cy="${fl.cy}" r="5" fill="#ef4444"/>
+            <!-- CISURA CENTRAL (ROLANDO) -->
+            <text x="260" y="88" fill="#6bd8cb" font-family="Space Grotesk" font-size="8" font-weight="bold" text-anchor="middle" opacity="0.7">CISURA CENTRAL (ROLANDO)</text>
+            <path d="M 265 92 Q 268 140 262 178" fill="none" stroke="#38efd4" stroke-dasharray="2 2" stroke-width="1.5" opacity="0.6"/>
 
-          <!-- Callout con línea -->
-          <line x1="${fl.cx}" y1="${fl.cy}" x2="${fl.cx + (fl.cx < 270 ? -60 : 60)}" y2="${fl.cy - 38}" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2" stroke-opacity="0.8"/>
-          <rect x="${fl.cx + (fl.cx < 270 ? -175 : fl.cx > 380 ? -150 : 65)}" y="${fl.cy - 58}" width="165" height="36" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1" stroke-opacity="0.7"/>
-          <text x="${fl.cx + (fl.cx < 270 ? -87 : fl.cx > 380 ? -68 : 147)}" y="${fl.cy - 43}" text-anchor="middle" font-family="monospace" font-size="7.5" fill="#ef4444" font-weight="bold">${fl.calloutText}</text>
-          <text x="${fl.cx + (fl.cx < 270 ? -87 : fl.cx > 380 ? -68 : 147)}" y="${fl.cy - 31}" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#f87171">${fl.specificZone.substring(0, 32)}${fl.specificZone.length > 32 ? '...' : ''}</text>
-        </svg>
-        <div class="px-4 py-2 border-t border-slate-700 flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0"></span>
-          <span class="text-[10px] font-mono text-slate-300 font-semibold">${fl.specificZone}</span>
+            <!-- LÓBULO FRONTAL -->
+            <path d="M 265 95 C 190 95 105 130 95 180 C 90 205 125 220 185 210 C 215 195 245 185 262 178 Z"
+              fill="${sf.fill}" fill-opacity="${sf.fillOp}" stroke="${sf.stroke}" stroke-width="${sf.strokeW}" stroke-dasharray="${c.correctRegionId === 'frontal' ? 'none' : '3 1'}"/>
+            <text x="175" y="145" fill="white" font-family="Space Grotesk" font-size="11" font-weight="bold" text-anchor="middle">LÓBULO FRONTAL</text>
+            <text x="175" y="158" fill="#6bd8cb" font-family="Inter" font-size="7.5" text-anchor="middle">Corteza Motora &amp; Prefrontal</text>
+
+            <!-- LÓBULO PARIETAL -->
+            <path d="M 265 95 C 330 92 375 120 388 180 C 370 205 320 205 262 178 Z"
+              fill="${sp.fill}" fill-opacity="${sp.fillOp}" stroke="${sp.stroke}" stroke-width="${sp.strokeW}"/>
+            <text x="325" y="135" fill="white" font-family="Space Grotesk" font-size="11" font-weight="bold" text-anchor="middle">L. PARIETAL</text>
+            <text x="325" y="148" fill="#d2af7b" font-family="Inter" font-size="7.5" text-anchor="middle">Somatosensorial / Primario</text>
+
+            <!-- LÓBULO OCCIPITAL -->
+            <path d="M 388 180 C 445 195 448 245 408 275 C 375 265 365 235 370 210 Z"
+              fill="${so.fill}" fill-opacity="${so.fillOp}" stroke="${so.stroke}" stroke-width="${so.strokeW}"/>
+            <text x="412" y="230" fill="white" font-family="Space Grotesk" font-size="10" font-weight="bold" text-anchor="middle">L. OCCIPITAL</text>
+            <text x="412" y="242" fill="#b39ddb" font-family="Inter" font-size="7" text-anchor="middle">Córtex Visual (V1/V2)</text>
+
+            <!-- CISURA LATERAL (SILVIO) -->
+            <path d="M 190 205 Q 260 195 350 190" fill="none" stroke="#38efd4" stroke-dasharray="2 2" stroke-width="1.5" opacity="0.5"/>
+            <text x="270" y="188" fill="#6bd8cb" font-family="Space Grotesk" font-size="7" font-weight="bold" text-anchor="middle" opacity="0.7">CISURA LATERAL (SILVIO)</text>
+
+            <!-- LÓBULO TEMPORAL -->
+            <path d="M 190 205 C 240 200 320 195 365 210 C 360 250 320 260 245 258 C 185 258 170 225 190 205 Z"
+              fill="${st.fill}" fill-opacity="${st.fillOp}" stroke="${st.stroke}" stroke-width="${st.strokeW}"/>
+            <text x="265" y="230" fill="white" font-family="Space Grotesk" font-size="10" font-weight="bold" text-anchor="middle">L. TEMPORAL</text>
+            <text x="265" y="242" fill="#7baaf7" font-family="Inter" font-size="7" text-anchor="middle">Giro Sup. / Área Wernicke</text>
+
+            <!-- CEREBELO -->
+            <path d="M 310 248 C 345 240 395 252 408 280 C 410 300 385 315 345 315 C 310 315 295 285 310 248 Z"
+              fill="${sc.fill}" fill-opacity="${sc.fillOp}" stroke="${sc.stroke}" stroke-width="${sc.strokeW}"/>
+            <text x="355" y="285" fill="#6bd8cb" font-family="Space Grotesk" font-size="9" font-weight="bold" text-anchor="middle">CEREBELO</text>
+
+            <!-- TRONCO ENCEFÁLICO -->
+            <path d="M 275 250 C 270 275 272 305 275 328 L 305 328 C 302 300 300 270 298 250 Z"
+              fill="${str.fill}" fill-opacity="${str.fillOp}" stroke="${str.stroke}" stroke-width="${str.strokeW}"/>
+            <text transform="rotate(80 290 295)" x="290" y="295" fill="#d2af7b" font-family="Space Grotesk" font-size="8" font-weight="bold" text-anchor="middle">TRONCO</text>
+
+            <!-- DIANA DEL FOCO LESIONAL (mira de coordenadas + hatch) -->
+            <circle cx="${fl.cx}" cy="${fl.cy}" r="34" fill="url(#lesionGlow-${c.id})"/>
+            <circle cx="${fl.cx}" cy="${fl.cy}" r="22" fill="url(#hatchRed-${c.id})" stroke="#ff3b30" stroke-width="2" stroke-dasharray="3 2">
+              <animate attributeName="r" values="20;24;20" dur="2.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.9;0.55;0.9" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Mira cruciforme -->
+            <line x1="${fl.cx - 28}" y1="${fl.cy}" x2="${fl.cx + 28}" y2="${fl.cy}" stroke="#ff3b30" stroke-width="1.2" opacity="0.9"/>
+            <line x1="${fl.cx}" y1="${fl.cy - 28}" x2="${fl.cx}" y2="${fl.cy + 28}" stroke="#ff3b30" stroke-width="1.2" opacity="0.9"/>
+            <circle cx="${fl.cx}" cy="${fl.cy}" r="4" fill="white" stroke="#ff3b30" stroke-width="1.5"/>
+
+            <!-- Callout con polyline blanca -->
+            ${(() => {
+              const lx = fl.cx < 270 ? fl.cx - 65 : fl.cx + 65;
+              const ly = fl.cy - 42;
+              const rx = fl.cx < 270 ? lx - 100 : lx - 2;
+              const tx = fl.cx < 270 ? rx + 52 : rx + 52;
+              return `
+                <polyline points="${fl.cx},${fl.cy} ${lx},${ly} ${lx + (fl.cx < 270 ? -100 : 104)},${ly}" fill="none" stroke="white" stroke-width="1.6"/>
+                <rect x="${rx}" y="${ly - 14}" width="104" height="18" fill="#b71c1c" rx="3"/>
+                <text x="${tx}" y="${ly - 2}" fill="white" font-family="Space Grotesk" font-size="7.5" font-weight="bold" text-anchor="middle">${fl.calloutText}</text>
+                <text x="${tx}" y="${ly + 16}" fill="white" font-family="Inter" font-size="7" text-anchor="middle" opacity="0.9">${fl.specificZone.substring(0, 28)}${fl.specificZone.length > 28 ? '...' : ''}</text>
+              `;
+            })()}
+          </svg>
+        </div>
+
+        <!-- Barra inferior: leyenda + zona específica -->
+        <div class="p-2.5 bg-[#081220] border-t border-[#162740] flex items-center justify-between flex-wrap gap-2 text-[11px]">
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="flex items-center gap-1.5 text-white/90">
+              <span class="w-3 h-3 bg-[#b71c1c] rounded-sm shrink-0"></span>Zona de Hipodensidad / Daño Focal
+            </span>
+            <span class="flex items-center gap-1.5 text-white/90">
+              <span class="w-3 h-3 rounded-sm border shrink-0" style="background:${lh.fill};border-color:${lh.stroke}"></span>${lh.label}
+            </span>
+          </div>
+          <span class="flex items-center gap-1.5 font-mono text-[#6bd8cb] text-[10px]">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0"></span>
+            ${fl.specificZone}
+          </span>
         </div>
       </div>
     `;
   })();
 
-  // 3b. Panel de Pruebas Neuropsicológicas
+  // 3b. Panel de Pruebas Neuropsicológicas — diseño Stitch fiel
   const testsHtml = (() => {
     if (!c.tests || c.tests.length === 0) return '';
 
-    // SVGs especiales para caso-03 (Heminegligencia)
+    // SVGs especiales para caso-03 (Heminegligencia) — fiel al diseño Stitch
     const specialSVGs = {
       reloj: `
-        <svg viewBox="0 0 200 200" class="w-full max-w-[180px] mx-auto" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="100" cy="100" r="90" fill="white" stroke="#374151" stroke-width="2"/>
-          <circle cx="100" cy="100" r="3" fill="#374151"/>
-          <!-- Manecillas apuntando a las 11:10 -->
-          <line x1="100" y1="100" x2="78" y2="42" stroke="#374151" stroke-width="3" stroke-linecap="round"/>
-          <line x1="100" y1="100" x2="138" y2="62" stroke="#374151" stroke-width="2" stroke-linecap="round"/>
-          <!-- Números aglomerados a la derecha (heminegligencia) -->
-          <text x="152" y="55" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">1</text>
-          <text x="162" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">2</text>
-          <text x="165" y="95" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">3</text>
-          <text x="162" y="118" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">4</text>
-          <text x="152" y="138" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">5</text>
-          <text x="138" y="152" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">6</text>
-          <text x="122" y="160" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">7</text>
-          <text x="108" y="162" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">8</text>
-          <text x="134" y="152" text-anchor="middle" font-size="10" fill="#1e40af">9</text>
-          <text x="146" y="140" text-anchor="middle" font-size="10" fill="#1e40af">10</text>
-          <text x="152" y="124" text-anchor="middle" font-size="10" fill="#1e40af">11</text>
-          <text x="152" y="108" text-anchor="middle" font-size="10" fill="#1e40af">12</text>
-          <!-- Zona izquierda vacía con tachado -->
-          <line x1="30" y1="60" x2="90" y2="160" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
-          <text x="55" y="130" text-anchor="middle" font-size="8" fill="#ef4444" opacity="0.7">sin números</text>
-        </svg>`,
+        <div class="w-full flex flex-col items-center gap-2">
+          <svg class="w-44 h-44" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Esfera -->
+            <circle cx="100" cy="100" r="85" fill="none" stroke="#374151" stroke-dasharray="2 1" stroke-width="3"/>
+            <circle cx="100" cy="100" r="3" fill="#374151"/>
+            <!-- Hemicampo izquierdo ignorado -->
+            <rect x="15" y="15" width="85" height="170" rx="8" fill="#374151" fill-opacity="0.04"/>
+            <text x="50" y="105" fill="#94a3b8" font-family="Space Grotesk" font-size="9" font-weight="bold" text-anchor="middle">HEMICAMPO</text>
+            <text x="50" y="116" fill="#94a3b8" font-family="Space Grotesk" font-size="9" font-weight="bold" text-anchor="middle">IGNORADO</text>
+            <!-- Números aglomerados a la derecha -->
+            <text x="110" y="38"  fill="#087F8C" font-family="Space Grotesk" font-size="12" font-weight="bold">12</text>
+            <text x="135" y="53"  fill="#087F8C" font-family="Space Grotesk" font-size="12" font-weight="bold">1</text>
+            <text x="155" y="73"  fill="#087F8C" font-family="Space Grotesk" font-size="12" font-weight="bold">2</text>
+            <text x="163" y="100" fill="#087F8C" font-family="Space Grotesk" font-size="12" font-weight="bold">3</text>
+            <text x="158" y="125" fill="#087F8C" font-family="Space Grotesk" font-size="12" font-weight="bold">4</text>
+            <text x="148" y="145" fill="#087F8C" font-family="Space Grotesk" font-size="12" font-weight="bold">5</text>
+            <text x="133" y="160" fill="#087F8C" font-family="Space Grotesk" font-size="12" font-weight="bold">6</text>
+            <text x="118" y="170" fill="#087F8C" font-family="Space Grotesk" font-size="11" font-weight="bold">7</text>
+            <text x="128" y="140" fill="#087F8C" font-family="Space Grotesk" font-size="11" font-weight="bold">8</text>
+            <text x="128" y="115" fill="#087F8C" font-family="Space Grotesk" font-size="11" font-weight="bold">9</text>
+            <text x="118" y="90"  fill="#087F8C" font-family="Space Grotesk" font-size="11" font-weight="bold">10</text>
+            <text x="113" y="65"  fill="#087F8C" font-family="Space Grotesk" font-size="11" font-weight="bold">11</text>
+            <!-- Agujas desordenadas a la derecha -->
+            <line x1="100" y1="100" x2="145" y2="90"  stroke="#ba1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="100" y1="100" x2="130" y2="135" stroke="#ba1a1a" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+            <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+            Aglomeración de los 12 dígitos en hemicampo derecho (Hemi-inattention)
+          </div>
+        </div>`,
       lineas: `
-        <svg viewBox="0 0 260 120" class="w-full max-w-[260px] mx-auto" xmlns="http://www.w3.org/2000/svg">
-          <rect width="260" height="120" fill="#f8fafc" rx="8" stroke="#e2e8f0" stroke-width="1"/>
-          <!-- Líneas horizontales -->
-          <line x1="20" y1="30" x2="240" y2="30" stroke="#374151" stroke-width="1.5"/>
-          <line x1="20" y1="55" x2="240" y2="55" stroke="#374151" stroke-width="1.5"/>
-          <line x1="20" y1="80" x2="240" y2="80" stroke="#374151" stroke-width="1.5"/>
-          <line x1="20" y1="105" x2="240" y2="105" stroke="#374151" stroke-width="1.5"/>
-          <!-- Marcas del paciente desviadas a la derecha -->
-          <line x1="158" y1="23" x2="158" y2="37" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="162" y1="48" x2="162" y2="62" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="155" y1="73" x2="155" y2="87" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="160" y1="98" x2="160" y2="112" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Punto central real -->
-          <circle cx="130" cy="30" r="2" fill="#22c55e" opacity="0.5"/>
-          <circle cx="130" cy="55" r="2" fill="#22c55e" opacity="0.5"/>
-          <circle cx="130" cy="80" r="2" fill="#22c55e" opacity="0.5"/>
-          <circle cx="130" cy="105" r="2" fill="#22c55e" opacity="0.5"/>
-          <!-- Etiquetas -->
-          <text x="12" y="12" font-size="7" fill="#64748b">← Izquierda</text>
-          <text x="190" y="12" font-size="7" fill="#64748b">Derecha →</text>
-          <text x="125" y="12" font-size="7" fill="#22c55e">Centro real</text>
-        </svg>`,
+        <div class="w-full flex flex-col items-center gap-2">
+          <svg class="w-full max-w-[280px]" viewBox="0 0 260 120" xmlns="http://www.w3.org/2000/svg">
+            <rect width="260" height="120" fill="#f8fafc" rx="8" stroke="#e2e8f0" stroke-width="1"/>
+            <text x="20" y="12" font-size="7.5" fill="#64748b" font-family="Inter">← Izquierda</text>
+            <text x="130" y="12" font-size="7.5" fill="#22c55e" font-family="Inter" text-anchor="middle">Centro geométrico real</text>
+            <text x="240" y="12" font-size="7.5" fill="#64748b" font-family="Inter" text-anchor="end">Derecha →</text>
+            <!-- Línea 1 -->
+            <line x1="20" y1="30" x2="240" y2="30" stroke="#6d7a77" stroke-linecap="round" stroke-width="2.5"/>
+            <line x1="130" y1="22" x2="130" y2="38" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="2 2"/>
+            <line x1="193" y1="20" x2="193" y2="40" stroke="#ba1a1a" stroke-width="3"/>
+            <!-- Línea 2 -->
+            <line x1="20" y1="60" x2="240" y2="60" stroke="#6d7a77" stroke-linecap="round" stroke-width="2.5"/>
+            <line x1="130" y1="52" x2="130" y2="68" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="2 2"/>
+            <line x1="200" y1="50" x2="200" y2="70" stroke="#ba1a1a" stroke-width="3"/>
+            <!-- Línea 3 -->
+            <line x1="20" y1="90" x2="240" y2="90" stroke="#6d7a77" stroke-linecap="round" stroke-width="2.5"/>
+            <line x1="130" y1="82" x2="130" y2="98" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="2 2"/>
+            <line x1="186" y1="80" x2="186" y2="100" stroke="#ba1a1a" stroke-width="3"/>
+            <!-- Línea 4 -->
+            <line x1="20" y1="108" x2="240" y2="108" stroke="#6d7a77" stroke-linecap="round" stroke-width="2.5"/>
+            <line x1="130" y1="102" x2="130" y2="115" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="2 2"/>
+            <line x1="196" y1="100" x2="196" y2="116" stroke="#ba1a1a" stroke-width="3"/>
+          </svg>
+          <div class="flex items-center justify-between w-full max-w-[280px] text-[11px] px-1">
+            <span class="text-slate-500 flex items-center gap-1"><span class="inline-block w-3 h-0.5 bg-green-500"></span>Centro real</span>
+            <span class="text-rose-600 font-semibold flex items-center gap-1"><span class="inline-block w-3 h-0.5 bg-rose-600"></span>Desvío M.R.V. (+38 mm Dcha.)</span>
+          </div>
+        </div>`,
       campanas: `
-        <svg viewBox="0 0 260 160" class="w-full max-w-[260px] mx-auto" xmlns="http://www.w3.org/2000/svg">
-          <rect width="260" height="160" fill="#f8fafc" rx="8" stroke="#e2e8f0" stroke-width="1"/>
-          <!-- Campanas (simplificadas como iconos) - Izquierda sin marcar, Derecha marcadas -->
-          ${[...Array(5)].map((_, row) =>
-            [...Array(7)].map((_, col) => {
-              const x = 22 + col * 34;
-              const y = 18 + row * 28;
-              const isRight = col >= 4;
-              return `
-                <g transform="translate(${x},${y})">
-                  <path d="M0,-8 Q-6,-4 -6,4 L6,4 Q6,-4 0,-8Z" fill="${isRight ? '#1e40af' : '#cbd5e1'}" opacity="${isRight ? 1 : 0.4}"/>
-                  <line x1="-6" y1="4" x2="6" y2="4" stroke="${isRight ? '#1e40af' : '#94a3b8'}" stroke-width="1.5"/>
-                  <circle cx="0" cy="5.5" r="1.2" fill="${isRight ? '#1e40af' : '#94a3b8'}"/>
-                  ${isRight ? `<line x1="-7" y1="-9" x2="7" y2="6" stroke="#ef4444" stroke-width="1.5" opacity="0.8"/>` : ''}
-                </g>`;
-            }).join('')
-          ).join('')}
-          <text x="10" y="152" font-size="7" fill="#ef4444">← Omitidas (heminegligencia)</text>
-          <text x="165" y="152" font-size="7" fill="#1e40af">Marcadas →</text>
-        </svg>`
+        <div class="w-full flex flex-col items-center gap-2">
+          <div class="grid grid-cols-6 gap-2 w-full max-w-[260px] text-center py-2 px-1 bg-slate-50 rounded-xl border border-slate-200">
+            ${Array.from({length: 24}, (_, i) => {
+              const col = i % 6;
+              const isRight = col >= 3;
+              return isRight
+                ? `<span class="text-rose-600 font-bold text-sm bg-rose-50 rounded border border-rose-200 py-0.5">❌</span>`
+                : `<span class="text-slate-300 text-sm opacity-40">🔔</span>`;
+            }).join('')}
+          </div>
+          <div class="text-[11px] text-slate-500 text-center leading-relaxed">
+            <span class="text-rose-600 font-semibold">Omisión del 100%</span> de campanas del hemicampo izquierdo.<br>Marcaje exhaustivo en hemicampo derecho.
+          </div>
+        </div>`
     };
 
     const tabsHtml = c.tests.map((t, i) => `
       <button onclick="switchTestTab('${c.id}', '${t.id}')"
         id="tab-btn-${c.id}-${t.id}"
-        class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${i === 0 ? 'bg-secondary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}">
+        class="px-3 py-1.5 rounded font-bold text-xs transition-all ${i === 0 ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
         ${t.name}
       </button>
     `).join('');
@@ -972,7 +1061,7 @@ function renderCaseView() {
             <p class="text-xs text-slate-700 leading-relaxed mt-1">${t.desc}</p>
           </div>
           ${(c.id === 'caso-03' && specialSVGs[t.id]) ? `
-            <div class="p-3 bg-white rounded-xl border border-slate-200">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center">
               ${specialSVGs[t.id]}
             </div>
           ` : ''}
@@ -986,9 +1075,10 @@ function renderCaseView() {
           <span class="material-symbols-outlined text-[16px] text-secondary">lab_research</span>
           Pruebas Neuropsicológicas Aplicadas
         </span>
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div class="flex items-center gap-1.5 p-2.5 border-b border-slate-100 bg-slate-50 flex-wrap">
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="flex items-center gap-1 p-2 border-b border-slate-100 bg-slate-50 flex-wrap">
             ${tabsHtml}
+            <span class="ml-auto text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Registro Clínico</span>
           </div>
           <div class="p-4">
             ${panelsHtml}
